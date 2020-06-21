@@ -383,6 +383,8 @@ class SplayTree
 		if (n)
 		{
 			Node *m = n->right;
+			if (m == nullptr)
+				return n;
 			Node *b = m->left;
 			m->left = n;
 			n->parent = m;
@@ -402,6 +404,8 @@ class SplayTree
 		if (n)
 		{
 			Node *m = n->left;
+			if (m == nullptr)
+				return n;
 			Node *b = m->right;
 			m->right = n;
 			n->parent = m;
