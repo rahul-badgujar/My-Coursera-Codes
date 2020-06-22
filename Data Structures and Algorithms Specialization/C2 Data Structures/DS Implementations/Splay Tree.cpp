@@ -97,6 +97,8 @@ class SplayTree
 				}
 				par = rotateRight(par);
 			}
+			adjustSize(par);
+			adjustHeight(par);
 			return par;
 		}
 		return nullptr;
@@ -104,6 +106,8 @@ class SplayTree
 	Node *find(Node *par, const int &k)
 	{
 		par = splayFind(root, k);
+		adjustSize(par);
+		adjustHeight(par);
 		return par;
 	}
 	Node *find(const int &k)
@@ -147,6 +151,9 @@ class SplayTree
 				}
 			}
 			adjustSize(par);
+			adjustHeight(par);
+			adjustSize(n);
+			adjustHeight(n);
 			return n;
 		}
 		return nullptr;
@@ -155,6 +162,7 @@ class SplayTree
 	{
 		root = insert(root, k);
 		adjustSize(root);
+		adjustHeight(root);
 		return root;
 	}
 	void printInorder(Node *par)
@@ -332,6 +340,8 @@ class SplayTree
 			}
 			delete temp;
 			childR = childL = temp = nullptr;
+			adjustSize(par);
+			adjustHeight(par);
 			return par;
 		}
 		return nullptr;
@@ -340,6 +350,7 @@ class SplayTree
 	{
 		root = remove(root, k);
 		adjustSize(root);
+		adjustHeight(root);
 		return root;
 	}
 	void adjustHeight(Node *n)

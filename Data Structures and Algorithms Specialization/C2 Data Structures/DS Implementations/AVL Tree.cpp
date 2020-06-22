@@ -102,6 +102,7 @@ class AVL
 			par->right->parent = par;
 		}
 		adjustHeight(par);
+		adjustSize(par);
 		int bal = getBalance(par);
 		if (bal > 1)
 		{
@@ -119,12 +120,12 @@ class AVL
 			}
 			par = rotateLeft(par);
 		}
-		adjustSize(par);
 		return par;
 	}
 	Node *insert(const int &k)
 	{
 		root = insert(root, k);
+		adjustHeight(root);
 		adjustSize(root);
 		return root;
 	}
@@ -315,6 +316,7 @@ class AVL
 				if (par->left)
 					par->left->parent = par;
 			}
+			adjustSize(par);
 			adjustHeight(par);
 			int bal = getBalance(par);
 			if (bal > 1)
@@ -333,7 +335,6 @@ class AVL
 				}
 				par = rotateLeft(par);
 			}
-			adjustSize(par);
 			return par;
 		}
 		return nullptr;
@@ -341,6 +342,8 @@ class AVL
 	Node *remove(const int &k)
 	{
 		root = remove(root, k);
+		adjustSize(root);
+		adjustHeight(root);
 		return root;
 	}
 	Node *rotateLeft(Node *n)
@@ -494,6 +497,7 @@ int main()
 	avl.insert(10);
 	avl.printPreorder();
 	log(endl);
+	logn(avl.find(30)->size);
 	logn(avl.orderStatistics(4)->key);
 	return 0;
 }
