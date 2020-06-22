@@ -165,44 +165,56 @@ class SplayTree
 		adjustHeight(root);
 		return root;
 	}
-	void printInorder(Node *par)
+	vector<int> getInorder(Node *par)
 	{
+		vector<int> elem;
 		if (par)
 		{
-			printInorder(par->left);
-			logs(par->key);
-			printInorder(par->right);
+			vector<int> L = getInorder(par->left);
+			elem.insert(elem.end(), L.begin(), L.end());
+			elem.push_back(par->key);
+			vector<int> R = getInorder(par->right);
+			elem.insert(elem.end(), R.begin(), R.end());
 		}
+		return elem;
 	}
-	void printInorder()
+	vector<int> getInorder()
 	{
-		printInorder(root);
+		return getInorder(root);
 	}
-	void printPreorder(Node *par)
+	vector<int> getPreorder(Node *par)
 	{
+		vector<int> elem;
 		if (par)
 		{
-			logs(par->key);
-			printPreorder(par->left);
-			printPreorder(par->right);
+			elem.push_back(par->key);
+			vector<int> L = getPreorder(par->left);
+			elem.insert(elem.end(), L.begin(), L.end());
+			vector<int> R = getPreorder(par->right);
+			elem.insert(elem.end(), R.begin(), R.end());
 		}
+		return elem;
 	}
-	void printPreorder()
+	vector<int> getPreorder()
 	{
-		printPreorder(root);
+		return getPreorder(root);
 	}
-	void printPostorder(Node *par)
+	vector<int> getPostorder(Node *par)
 	{
+		vector<int> elem;
 		if (par)
 		{
-			printPostorder(par->left);
-			printPostorder(par->right);
-			logs(par->key);
+			vector<int> L = getPostorder(par->left);
+			elem.insert(elem.end(), L.begin(), L.end());
+			vector<int> R = getPostorder(par->right);
+			elem.insert(elem.end(), R.begin(), R.end());
+			elem.push_back(par->key);
 		}
+		return elem;
 	}
-	void printPostorder()
+	vector<int> getPostorder()
 	{
-		printPostorder(root);
+		return getPostorder(root);
 	}
 	Node *leftDescendant(Node *n)
 	{
@@ -478,11 +490,11 @@ int main()
 	st.insert(30);
 	st.insert(20);
 	st.insert(40);
-	st.printPreorder();
+	debVect(st.getPreorder());
 	log(endl);
 	st.remove(20);
 	logn(st.root->key);
-	st.printPreorder();
+	debVect(st.getPreorder());
 	log(endl);
 	return 0;
 }
