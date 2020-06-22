@@ -115,20 +115,41 @@ class SplayTree
 	{
 		if (par == nullptr)
 		{
-			return new Node(k);
+			par = new Node(k);
+			return par;
 		}
-		if (k < par->key)
+		else
 		{
-			par->left = insert(par->left, k);
-			par->left->parent = par;
+			par = find(k);
+			if (par->key == k)
+				return par;
+			Node *n = new Node(k);
+			if (k < par->key)
+			{
+				n->right = par;
+				par->parent = n;
+				if (par->left)
+				{
+					n->left = par->left;
+					par->left = nullptr;
+					n->left->parent = n;
+				}
+			}
+			else if (k > par->key)
+			{
+				n->left = par;
+				par->parent = n;
+				if (par->right)
+				{
+					n->right = par->right;
+					par->right = nullptr;
+					n->right->parent = n;
+				}
+			}
+			adjustSize(par);
+			return n;
 		}
-		else if (k > par->key)
-		{
-			par->right = insert(par->right, k);
-			par->right->parent = par;
-		}
-		adjustSize(par);
-		return par;
+		return nullptr;
 	}
 	Node *insert(const int &k)
 	{
@@ -293,37 +314,24 @@ class SplayTree
 	{
 		if (par)
 		{
-			if (par->key == k)
+			par = find(par, k);
+			if (par->key != k)
+				return par;
+			Node *temp = par;
+			Node *childL = par->left;
+			Node *childR = par->right;
+			if (childL == nullptr)
 			{
-				if (par->right == nullptr)
-				{
-					Node *t = par->left;
-					delete par;
-					par = nullptr;
-					return t;
-				}
-				else
-				{
-					Node *s = leftDescendant(par->right);
-					par->key = s->key;
-					par->right = remove(par->right, s->key);
-					if (par->right)
-						par->right->parent = par;
-				}
+				par = childR;
 			}
-			else if (par->key < k)
+			else
 			{
-				par->right = remove(par->right, k);
-				if (par->right)
-					par->right->parent = par;
+				par = find(childL, k);
+				par->right = childR;
+				childR->parent = par;
 			}
-			else if (par->key > k)
-			{
-				par->left = remove(par->left, k);
-				if (par->left)
-					par->left->parent = par;
-			}
-			adjustSize(par);
+			delete temp;
+			childR = childL = temp = nullptr;
 			return par;
 		}
 		return nullptr;
@@ -461,7 +469,7 @@ int main()
 	st.insert(40);
 	st.printPreorder();
 	log(endl);
-	logn(st.find(20)->key);
+	st.remove(20);
 	logn(st.root->key);
 	st.printPreorder();
 	log(endl);
