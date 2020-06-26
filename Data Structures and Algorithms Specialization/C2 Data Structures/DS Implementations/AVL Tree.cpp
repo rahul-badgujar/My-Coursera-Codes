@@ -508,8 +508,7 @@ int main()
 	avl.insert(30);
 	avl.insert(10);
 	debVect(avl.getPreorder());
-	log(endl);
-	logn(avl.find(30)->size);
-	logn(avl.orderStatistics(4)->key);
+	if(avl.orderStatistics(6)==nullptr)
+		logn("Doesn't Exist");
 	return 0;
 }
