@@ -126,7 +126,7 @@ class DirGraph
 			flag = false;
 			for (auto e : edges)
 			{
-				if (dist[e.v1] != MOD)
+				if (dist[e.v1] < MOD)
 				{
 					Int tDist = dist[e.v1] + eWeights[Edge::toString(e)];
 					if (dist[e.v2] > tDist)
@@ -166,7 +166,7 @@ class DirGraph
 			lastRelaxed = -1;
 			for (auto e : edges)
 			{
-				if (dist[e.v1] != MOD)
+				if (dist[e.v1] < MOD)
 				{
 					Int tDist = dist[e.v1] + eWeights[Edge::toString(e)];
 					if (dist[e.v2] > tDist)
