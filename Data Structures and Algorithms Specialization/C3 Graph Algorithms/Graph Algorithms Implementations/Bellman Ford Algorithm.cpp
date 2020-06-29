@@ -215,7 +215,7 @@ class DirGraph
 	}
 	void fastestRoute_v3(const Int &u, const Int &v)
 	{
-		// Optimized Bellman Ford
+		// SPFA : Shortest Path Fast Algorithm
 		// For Graph with -VE Weight Cycle
 		vector<Int> dist(size + 1, MOD);
 		vector<Int> prev(size + 1, -1);
@@ -224,6 +224,7 @@ class DirGraph
 		vector<Int> relaxCount(size + 1, 0);
 		dist[u] = 0;
 		toRelax.push(u);
+		relaxCount[u] = 1;
 		isInQueue[u] = true;
 		bool hasCycle = false;
 		while (!toRelax.empty() and !hasCycle)
@@ -238,16 +239,16 @@ class DirGraph
 				{
 					dist[i] = tDist;
 					prev[i] = r;
+					relaxCount[i]++;
+					if (relaxCount[i] >= size)
+					{
+						hasCycle = true;
+						break;
+					}
 					if (!isInQueue[i])
 					{
 						toRelax.push(i);
 						isInQueue[i] = true;
-						relaxCount[i]++;
-						if (relaxCount[i] > size)
-						{
-							hasCycle = true;
-							break;
-						}
 					}
 				}
 			}
@@ -303,6 +304,9 @@ int main()
 	}
 	Int x, y;
 	cin >> x >> y;
+	logn("Version 2 : ");
+	g.fastestRoute_v2(x, y);
+	logn("Version 3 : ");
 	g.fastestRoute_v3(x, y);
 	return 0;
 }
