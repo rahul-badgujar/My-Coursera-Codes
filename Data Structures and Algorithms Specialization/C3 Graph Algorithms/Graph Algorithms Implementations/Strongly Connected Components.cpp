@@ -167,6 +167,11 @@ class DirGraph
 			stUtil.pop();
 		}
 		return count;
+		/*
+		NOTES :
+			1. We can get the groups of SCC by using Group Vector
+			   and unique ID for each group.
+		*/
 	}
 };
 
