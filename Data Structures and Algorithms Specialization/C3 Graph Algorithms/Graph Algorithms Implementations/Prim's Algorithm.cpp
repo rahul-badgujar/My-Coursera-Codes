@@ -14,8 +14,7 @@
 
 using namespace std;
 
-typedef pair<Int, Int> iPair;
-typedef pair<Int, vector<Int>> RoutePair;
+typedef pair<Int, pair<Int, Int>> prim_pair;
 
 template <typename T, typename U>
 void debArr(T arr[], U n)
@@ -177,30 +176,39 @@ class UnDirGraph
 	}
 	void getMinSpanCost()
 	{
-		vector<Edge> edg(edges.begin(), edges.end());
-		sort(edg.begin(), edg.end(), Edge::sortByCost);
-		UFDS ds(size);
-		vector<bool> targetedEdges(edg.size(), false);
+		priority_queue<prim_pair, vector<prim_pair>, greater<prim_pair>> pq;
+		vector<bool> marked(size, false);
+		pq.push({0, {0, -1}});
+		vector<pair<Int, Int>> tarEdges;
+		tarEdges.reserve(size);
 		Int cost = 0;
-		for (Int i = 0; i < edg.size(); i++)
+		while (!pq.empty())
 		{
-			if (ds.find(edg[i].v1) != ds.find(edg[i].v2))
+			prim_pair p = pq.top();
+			pq.pop();
+			Int vert = p.second.first;
+			if (marked[vert])
+				continue;
+			marked[vert] = true;
+			cost += p.first;
+			Int par = p.second.second;
+			tarEdges.push_back({par, vert});
+			for (auto i : vertices[vert].adjList)
 			{
-				cost += edg[i].cost;
-				ds.unite(edg[i].v1, edg[i].v2);
-				targetedEdges[i] = true;
+				if (!marked[i])
+				{
+					Int c = eWeights[Edge::toString(Edge(vert, i))];
+					pq.push({c, {i, vert}});
+				}
 			}
 		}
 		logs("Minimum Cost : ");
 		logn(cost);
 		logn("Targeted Edges : ");
-		for (Int i = 0; i < edg.size(); i++)
+		for (Int i = 1; i < tarEdges.size(); i++)
 		{
-			if (targetedEdges[i])
-			{
-				logs(edg[i].v1 + 1);
-				logn(edg[i].v2 + 1);
-			}
+			logs(tarEdges[i].first + 1);
+			logn(tarEdges[i].second + 1);
 		}
 	}
 };
