@@ -8,7 +8,7 @@
 #define logn(x) cout << x << '\n'
 #define logs(x) cout << x << ' '
 #define log(x) cout << x
-#define MOD 1000000007
+#define INF (Int)1000000000001
 #define uInt unsigned long long int
 #define Int long long int
 
@@ -85,7 +85,7 @@ class DirGraph
 		v = prev[v];
 		while (v != -1)
 		{
-			path.push_back(v);
+			path.push_back(v+1);
 			v = prev[v];
 		}
 		reverse(path.begin(), path.end());
@@ -96,9 +96,9 @@ class DirGraph
 	DirGraph(const Int &n, const Int &m)
 	{
 		size = n;
-		vertices.resize(size + 1, Vertex(0, size));
+		vertices.resize(size , Vertex(0, size));
 		edges.resize(m);
-		for (Int i = 1; i <= size; i++)
+		for (Int i = 0; i <= size-1; i++)
 		{
 			vertices[i].key = i;
 		}
@@ -117,9 +117,9 @@ class DirGraph
 	RoutePair fastestPath(const Int &u, const Int &v)
 	{
 		priority_queue<iPair, vector<iPair>, greater<iPair>> pq;
-		vector<Int> dist(size + 1, MOD);
-		vector<Int> prev(size + 1, -1);
-		vector<bool> minCorr(size + 1, false);
+		vector<Int> dist(size , INF);
+		vector<Int> prev(size , -1);
+		vector<bool> minCorr(size , false);
 		dist[u] = 0;
 		prev[u] = -1;
 		pq.push({0, u});
@@ -140,10 +140,10 @@ class DirGraph
 			}
 		}
 		vector<Int> path;
-		if (dist[v] != MOD)
+		if (dist[v] != INF)
 		{
 			path = retracePath(v, prev);
-			path.push_back(v);
+			path.push_back(v+1);
 		}
 		return {dist[v], path};
 	}
@@ -161,12 +161,12 @@ int main()
 	{
 		Int i, j, k;
 		cin >> i >> j >> k;
-		g.markEdge(i, j, k);
+		g.markEdge(--i, --j, k);
 	}
-	Int x, y;
-	cin >> x >> y;
-	RoutePair d = g.fastestPath(x, y);
-	if (d.first == MOD)
+	Int x,y;
+	cin >> x >>y;
+	RoutePair d = g.fastestPath(--x,-- y);
+	if (d.first == INF)
 	{
 		logn("No Path Exists !");
 	}

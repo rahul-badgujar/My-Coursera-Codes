@@ -114,32 +114,38 @@ class DirGraph
 		edges.push_back(e);
 		eWeights[Edge::toString(e)] = k;
 	}
-	void bellmanFord_noCycle(const Int &u)
+	void spfa_noCycle(const Int &u)
 	{
-		// For Graph withouth -VE Weight Cycle
+		// SPFA : Shortest Path Fast Algorithm
+		// For Graph without -VE Weight Cycle
 		vector<Int> dist(size, INF);
 		vector<Int> prev(size, -1);
+		queue<Int> toRelax;
+		vector<bool> isInQueue(size, false);
 		dist[u] = 0;
-		bool flag = false;
-		for (Int i = 1; i <= size - 1; i++)
+		toRelax.push(u);
+		isInQueue[u] = true;
+		while (!toRelax.empty())
 		{
-			flag = false;
-			for (auto e : edges)
+			Int r = toRelax.front();
+			toRelax.pop();
+			isInQueue[r] = false;
+			for (auto i : vertices[r].adjList)
 			{
-				if (dist[e.v1] < INF)
+				Int tDist = dist[r] + eWeights[Edge::toString(Edge(r, i))];
+				if (dist[i] > tDist)
 				{
-					Int tDist = dist[e.v1] + eWeights[Edge::toString(e)];
-					if (dist[e.v2] > tDist)
+					dist[i] = max(-1 * INF, tDist);
+					prev[i] = r;
+					if (!isInQueue[i])
 					{
-						flag = true;
-						dist[e.v2] = max(-1*INF,tDist);
-						prev[e.v2] = e.v1;
+						toRelax.push(i);
+						isInQueue[i] = true;
 					}
 				}
 			}
-			if (!flag)
-				break;
 		}
+
 		log("Source : ");
 		logn(u);
 		for (Int i = 0; i <= size - 1; i++)
@@ -149,53 +155,62 @@ class DirGraph
 			log(" has min path of ");
 			logn(dist[i]);
 		}
-		/*
-		NOTE :
-			1. We can retrace path using prev vector.
-		*/
 	}
-	void bellmanFord_withCycle(const Int &u)
+	void spfa_withCycle(const Int &u)
 	{
+		// SPFA : Shortest Path Fast Algorithm
 		// For Graph with -VE Weight Cycle
 		vector<Int> dist(size, INF);
 		vector<Int> prev(size, -1);
+		queue<Int> toRelax;
+		vector<bool> isInQueue(size, false);
+		vector<Int> relaxCount(size, 0);
 		dist[u] = 0;
-		queue<Int> lastRelaxed;
-		for (Int i = 1; i <= size; i++)
+		toRelax.push(u);
+		isInQueue[u] = true;
+		relaxCount[u]++;
+		bool hasCycle = false;
+		while (!toRelax.empty() and !hasCycle)
 		{
-			bool relaxedAny = false;
-			for (auto e : edges)
+			Int r = toRelax.front();
+			toRelax.pop();
+			isInQueue[r] = false;
+			for (auto i : vertices[r].adjList)
 			{
-				if (dist[e.v1] < INF)
+				Int tDist = dist[r] + eWeights[Edge::toString(Edge(r, i))];
+				if (dist[i] > tDist)
 				{
-					Int tDist = dist[e.v1] + eWeights[Edge::toString(e)];
-					if (dist[e.v2] > tDist)
+					dist[i] = max(-1 * INF, tDist);
+					prev[i] = r;
+					relaxCount[i]++;
+					if (relaxCount[i] >= size)
 					{
-						relaxedAny = true;
-						dist[e.v2] = max(-1*INF,tDist);
-						prev[e.v2] = e.v1;
-						if (i == size)
-							lastRelaxed.push(e.v2);
+						hasCycle = true;
 					}
+					if (!isInQueue[i])
+					{
+						toRelax.push(i);
+						isInQueue[i] = true;
+					}
+					if (hasCycle)
+						break;
 				}
 			}
-			if (!relaxedAny)
-				break;
 		}
-		if (!lastRelaxed.empty())
+		if (hasCycle)
 		{
 			logn("Negative Cycle Exists!");
 			vector<bool> visited(size, false);
-			while (!lastRelaxed.empty())
+			while (!toRelax.empty())
 			{
-				Int x = lastRelaxed.front();
-				lastRelaxed.pop();
+				Int x = toRelax.front();
+				toRelax.pop();
 				visited[x] = true;
 				dist[x] = -1 * INF;
 				for (auto i : vertices[x].adjList)
 				{
 					if (!visited[i])
-						lastRelaxed.push(i);
+						toRelax.push(i);
 				}
 			}
 		}
@@ -208,26 +223,6 @@ class DirGraph
 			log(" has min path of ");
 			logn(dist[i]);
 		}
-		/*
-		NOTES : 
-			1. To get the Path of -VE Weight Cycle, we can use 
-			   last element in lastRelaxed Queue. Use prev vector
-			   to trace parent xSIZE times, then we will be in Cycle
-			   and the just go round the cycle to get all elements.
-			   
-			   Int y = lastRelaxed.back();
-			   for (Int i = 1; i <= size; i++)
-				   y = prev[y];
-			   vector<Int> cyclePath;
-			   for (Int i = y;; i = prev[i])
-			   {
-					cyclePath.push_back(i);
-					if (i == y and cyclePath.size() > 1)
-						break;
-			   }
-			   log("Cycle Path : ");
-			   debVect(cyclePath);
-		*/
 	}
 };
 
@@ -249,6 +244,6 @@ int main()
 	}
 	Int x;
 	cin >> x;
-	g.bellmanFord_withCycle(--x);
+	g.spfa_noCycle(--x);
 	return 0;
 }
