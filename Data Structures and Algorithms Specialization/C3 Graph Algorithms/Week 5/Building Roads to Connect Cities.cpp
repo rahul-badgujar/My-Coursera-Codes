@@ -4,6 +4,8 @@
 #include <stack>
 #include <queue>
 #include <unordered_map>
+#include <cmath>
+#include <iomanip>
 #define deb(x) cout << #x << " : " << x << '\n'
 #define logn(x) cout << x << '\n'
 #define logs(x) cout << x << ' '
@@ -88,23 +90,27 @@ class UnDirGraph
 	class Vertex
 	{
 	  public:
-		Int key;
-		vector<Int> adjList;
-		Vertex(const Int &k)
+		Int x, y;
+		Vertex()
 		{
-			key = k;
+			x = y = 0;
 		}
-		Vertex(const Int &k, const Int &s)
+		Vertex(const Int &a, const Int &b)
 		{
-			key = k;
-			adjList.reserve(s);
+			x = a;
+			y = b;
+		}
+		double operator-(const Vertex &v1)
+		{
+			double dist = (v1.y - y) * (v1.y - y) + (v1.x - x) * (v1.x - x);
+			return sqrt(dist);
 		}
 	};
 	class Edge
 	{
 	  public:
 		Int v1, v2;
-		Int cost;
+		double cost;
 		Edge()
 		{
 			v1 = v2 = cost = 0;
@@ -115,16 +121,11 @@ class UnDirGraph
 			v2 = y;
 			cost = 0;
 		}
-		Edge(const Int &x, const Int &y, const Int &c)
+		Edge(const Int &x, const Int &y, const double &c)
 		{
 			v1 = x;
 			v2 = y;
 			cost = c;
-		}
-		static string toString(const Edge &e)
-		{
-			string s = to_string(e.v1) + " " + to_string(e.v2);
-			return s;
 		}
 		static bool sortByCost(const Edge &e1, const Edge &e2)
 		{
@@ -134,74 +135,42 @@ class UnDirGraph
 	Int size;
 	vector<Vertex> vertices;
 	vector<Edge> edges;
-	unordered_map<string, Int> eWeights;
-
-	static vector<Int> retracePath(Int v, vector<Int> prev)
-	{
-		vector<Int> path;
-		v = prev[v];
-		while (v != -1)
-		{
-			path.push_back(v);
-			v = prev[v];
-		}
-		reverse(path.begin(), path.end());
-		return path;
-	}
 
   public:
-	UnDirGraph(const Int &n, const Int &m)
+	UnDirGraph(const Int &n)
 	{
 		size = n;
-		vertices.resize(size, Vertex(0, size));
-		edges.resize(m);
-		for (Int i = 0; i <= size - 1; i++)
+		vertices.reserve(n);
+	}
+	void addVertex(const Int &x, const Int &y)
+	{
+		vertices.push_back(Vertex(x, y));
+	}
+	void markEdges()
+	{
+		for (Int i = 0; i < size; i++)
 		{
-			vertices[i].key = i;
+			for (Int j = i + 1; j < size; j++)
+			{
+				edges.push_back(Edge(i, j, vertices[i] - vertices[j]));
+			}
 		}
 	}
-	const vector<Vertex> &getVertices() const
-	{
-		return vertices;
-	}
-	void markEdge(const Int &i, const Int &j, const Int &k)
-	{
-		vertices[i].adjList.push_back(j);
-		Edge e(i, j, k);
-		edges.push_back(e);
-		eWeights[Edge::toString(e)] = k;
-		vertices[j].adjList.push_back(i);
-		Edge e2(j, i, k);
-		edges.push_back(e2); // this step is avoidable
-		eWeights[Edge::toString(e2)] = k;
-	}
-	void getMinSpanCost()
+	double getMinSpanCost()
 	{
 		vector<Edge> edg(edges.begin(), edges.end());
 		sort(edg.begin(), edg.end(), Edge::sortByCost);
 		UFDS ds(size);
-		vector<bool> targetedEdges(edg.size(), false);
-		Int cost = 0;
+		double cost = 0;
 		for (Int i = 0; i < edg.size(); i++)
 		{
 			if (ds.find(edg[i].v1) != ds.find(edg[i].v2))
 			{
 				cost += edg[i].cost;
 				ds.unite(edg[i].v1, edg[i].v2);
-				targetedEdges[i] = true;
 			}
 		}
-		logs("Minimum Cost : ");
-		logn(cost);
-		logn("Targeted Edges : ");
-		for (Int i = 0; i < edg.size(); i++)
-		{
-			if (targetedEdges[i])
-			{
-				logs(edg[i].v1 + 1);
-				logn(edg[i].v2 + 1);
-			}
-		}
+		return cost;
 	}
 };
 
@@ -212,15 +181,16 @@ int main()
 
 	// Input Vertices are 1-Based
 
-	Int n, m;
-	cin >> n >> m;
-	UnDirGraph g(n, m);
-	while (m--)
+	Int n;
+	cin >> n;
+	UnDirGraph g(n);
+	while (n--)
 	{
-		Int i, j, k;
-		cin >> i >> j >> k;
-		g.markEdge(--i, --j, k);
+		Int i, j;
+		cin >> i >> j;
+		g.addVertex(i, j);
 	}
-	g.getMinSpanCost();
+	g.markEdges();
+	cout << fixed << setprecision(9) << g.getMinSpanCost();
 	return 0;
 }

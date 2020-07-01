@@ -36,51 +36,6 @@ void debVect(vector<T> arr)
 	log(endl);
 }
 
-class UFDS
-{
-  public:
-	vector<Int> parent, rank;
-	UFDS(const Int &n)
-	{
-		parent.resize(n);
-		rank.resize(n);
-		for (Int i = 0; i <= n - 1; i++)
-		{
-			parent[i] = i;
-			rank[i] = 0;
-		}
-	}
-	Int find(const Int &x)
-	{
-		if (x != parent[x])
-		{
-			parent[x] = find(parent[x]);
-		}
-		return parent[x];
-	}
-	void unite(const Int &x, const Int &y)
-	{
-		Int xid = find(x);
-		Int yid = find(y);
-		if (xid != yid)
-		{
-			if (rank[xid] < rank[yid])
-			{
-				parent[xid] = yid;
-			}
-			else if (rank[xid] > rank[yid])
-			{
-				parent[yid] = xid;
-			}
-			else
-			{
-				parent[xid] = yid;
-				rank[yid]++;
-			}
-		}
-	}
-};
-
 class UnDirGraph
 {
   private:
