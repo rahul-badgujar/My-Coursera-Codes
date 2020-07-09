@@ -79,7 +79,7 @@ class Trie
 			while (curr->childs[t[j] - 'A'] != nullptr and j < t.size())
 			{
 				curr = curr->childs[t[j] - 'A'];
-				if(curr->isLeaf)
+				if (curr->isLeaf)
 				{
 					ind.push_back(i);
 					break;
