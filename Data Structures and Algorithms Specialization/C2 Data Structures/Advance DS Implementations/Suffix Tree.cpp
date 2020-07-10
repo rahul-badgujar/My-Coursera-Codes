@@ -54,27 +54,27 @@ class SuffixTree
 	string text;
 	Int len;
 	Node *root;
+	static const char delim = '$';
 	SuffixTree(const string &s)
 	{
 		text = s;
 		len = s.length();
+		text += delim;
 		root = new Node();
 		buildSuffixTree();
 	}
 	void buildSuffixTree()
 	{
-		for (Int i = 0; i < len; i++)
+		for (Int i = 0; i <= len; i++)
 		{
-			//deb(i);
 			insert(i);
-			//log('\n');
 		}
 	}
 	void insert(Int i)
 	{
 		Node *p = root;
 		Int init = i;
-		while (i < len)
+		while (i <= len)
 		{
 			Int ind = index(text[i]);
 			if (p->childs[ind] == nullptr)
@@ -105,7 +105,7 @@ class SuffixTree
 	}
 	static Int index(const char &c)
 	{
-		if (c == '$')
+		if (c == delim)
 			return Node::childsSize - 1;
 		else
 			return c - Node::base;
@@ -114,8 +114,11 @@ class SuffixTree
 	{
 		if (p->init != -1)
 		{
-			logs(s);
-			logn(p->init);
+			if (!s.empty())
+			{
+				logs(s);
+				logn(p->init);
+			}
 		}
 		for (Int i = 0; i < Node::childsSize; i++)
 		{
@@ -134,15 +137,48 @@ class SuffixTree
 		string s("");
 		showContents(root, s);
 	}
+	bool isSubstr(const string &s)
+	{
+		Int i = 0;
+		Node *p = root;
+		if (s.length() > len)
+			return false;
+		while (i < s.length())
+		{
+			Node *t = p->childs[index(s[i])];
+			if (t == nullptr)
+			{
+				return false;
+			}
+			Int j;
+			for (j = t->l; j <= t->r; j++, i++)
+			{
+				if (i >= s.length())
+					return true;
+				else if (s[i] != text[j])
+					break;
+			}
+			if (j > t->r)
+			{
+				p = t;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 };
 int main()
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	string s;
-	cin >> s;
+	string s = "google";
 	SuffixTree t(s);
 	t.showContents();
+	string s2 = "gle";
+	log(t.isSubstr(s2));
 	return 0;
 }
