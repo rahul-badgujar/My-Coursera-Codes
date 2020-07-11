@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include <algorithm>
 #define deb(x) cout << #x << " : " << x << '\n'
 #define logn(x) cout << x << '\n'
 #define logs(x) cout << x << ' '
@@ -54,20 +55,30 @@ class SuffixArray
 	vector<Int> suffArray;
 	Int len;
 	static const char delim = '$';
-	static const char base = 'a';
+	static const char base = 'A';
 	SuffixArray(const string &s)
 	{
-		text = s + delim;
+		text = s;
 		len = text.length();
 		suffArray.resize(len, -1);
 		buildSuffArray();
 	}
 	static Int index(const char &c)
 	{
-		if (c == delim)
-			return 0;
-		else
-			return c - base + 1;
+		switch(c)
+		{
+			case delim:	
+				return 0;
+			case 'A':
+				return 1;
+			case 'C':
+				return 2;
+			case 'G':
+				return 3;
+			case 'T':
+				return 4; 	
+		}
+		return -1;
 	}
 	void buildSuffArray()
 	{
@@ -117,6 +128,20 @@ class SuffixArray
 			suffArray[i] = v[i].indx;
 		}
 	}
+	string getBWT()
+	{
+		char bwt[len + 1];
+		for (Int i = 0; i < len; i++)
+		{
+			Int ind = suffArray[i] - 1;
+			if (ind >= 0)
+				bwt[i] = text[ind];
+			else
+				bwt[i] = text[len - 1];
+		}
+		bwt[len] = '\0';
+		return string(bwt);
+	}
 };
 
 int main()
@@ -124,10 +149,10 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	string s = "banana";
+	string s;
+	cin >> s;
 	SuffixArray sa(s);
-	debVect(sa.suffArray);
-
+	logn(sa.getBWT());
 	return 0;
 }
 
