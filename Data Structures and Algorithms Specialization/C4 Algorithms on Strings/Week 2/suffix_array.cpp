@@ -11,7 +11,7 @@
 #define log(x) cout << x
 #define MOD 1000000007
 #define uInt unsigned long long int
-#define Int long long int
+#define Int int
 
 using namespace std;
 
@@ -57,20 +57,30 @@ class SuffixArray
 	vector<Int> suffArray;
 	Int len;
 	static const char delim = '$';
-	static const char base = 'a';
+	static const char base = 'A';
 	SuffixArray(const string &s)
 	{
-		text = s + delim;
+		text = s; //+ delim;
 		len = text.length();
 		suffArray.resize(len, -1);
 		buildSuffArray();
 	}
 	static Int index(const char &c)
 	{
-		if (c == delim)
+		switch (c)
+		{
+		case delim:
 			return 0;
-		else
-			return c - base + 1;
+		case 'A':
+			return 1;
+		case 'C':
+			return 2;
+		case 'G':
+			return 3;
+		case 'T':
+			return 4;
+		}
+		return -1;
 	}
 	static bool strSort(const char &c1, const char &c2)
 	{
@@ -125,47 +135,7 @@ class SuffixArray
 			suffArray[i] = v[i].indx;
 		}
 	}
-	// to get Burrows–Wheeler Transform of String
-	string getBWT()
-	{
-		char bwt[len + 1];
-		for (Int i = 0; i < len; i++)
-		{
-			Int ind = suffArray[i] - 1;
-			ind += len;
-			bwt[i] = text[ind % len];
-		}
-		bwt[len] = '\0';
-		return string(bwt);
-	}
-	// to decode Burrows–Wheeler Transform of string
-	static string decodeBWT(const string &L)
-	{
-		Int n = L.length();
-		string F = L;
-		sort(F.begin(), F.end(), SuffixArray::strSort);
-		unordered_map<char, queue<Int>> m;
-		for (Int i = 0; i < n; i++)
-		{
-			m[L[i]].push(i);
-		}
-		Int firstToLast[n];
-		for (Int i = 0; i < n; i++)
-		{
-			queue<Int> &q = m[F[i]];
-			firstToLast[i] = q.front();
-			q.pop();
-		}
-		char decode[n + 1];
-		decode[n] = '\0';
-		Int x = 0;
-		for (Int i = 0; i < n; i++)
-		{
-			x = firstToLast[x];
-			decode[i] = F[x];
-		}
-		return string(decode);
-	}
+	
 };
 
 int main()
@@ -173,8 +143,10 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	string s = "agggaa$";
-	logn(SuffixArray::decodeBWT(s));
+	string s;
+	cin >> s;
+	SuffixArray sa(s);
+	debVect(sa.suffArray);
 
 	return 0;
 }
