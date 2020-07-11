@@ -57,15 +57,14 @@ class SuffixTree
 	static const char delim = '$';
 	SuffixTree(const string &s)
 	{
-		text = s;
-		len = s.length();
-		text += delim;
+		text = s+delim;
+		len = text.length();
 		root = new Node();
 		buildSuffixTree();
 	}
 	void buildSuffixTree()
 	{
-		for (Int i = 0; i <= len; i++)
+		for (Int i = 0; i < len; i++)
 		{
 			insert(i);
 		}
@@ -74,7 +73,7 @@ class SuffixTree
 	{
 		Node *p = root;
 		Int init = i;
-		while (i <= len)
+		while (i < len)
 		{
 			Int ind = index(text[i]);
 			if (p->childs[ind] == nullptr)
@@ -106,9 +105,9 @@ class SuffixTree
 	static Int index(const char &c)
 	{
 		if (c == delim)
-			return Node::childsSize - 1;
+			return 0;
 		else
-			return c - Node::base;
+			return c - Node::base+1;
 	}
 	void showContents(Node *p, string &s)
 	{
@@ -116,7 +115,7 @@ class SuffixTree
 		{
 			if (!s.empty())
 			{
-				logs(s);
+				logs(s.substr(0,s.length()-1));
 				logn(p->init);
 			}
 		}
@@ -141,7 +140,7 @@ class SuffixTree
 	{
 		Int i = 0;
 		Node *p = root;
-		if (s.length() > len)
+		if (s.length() > len-1)
 			return false;
 		while (i < s.length())
 		{
