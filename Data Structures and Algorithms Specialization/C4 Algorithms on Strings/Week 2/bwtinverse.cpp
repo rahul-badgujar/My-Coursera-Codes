@@ -5,13 +5,16 @@
 #include <algorithm>
 #include <unordered_map>
 #include <queue>
+#include <cassert>
+#include <exception>
+#include <stdexcept>
 #define deb(x) cout << #x << " : " << x << '\n'
 #define logn(x) cout << x << '\n'
 #define logs(x) cout << x << ' '
 #define log(x) cout << x
 #define MOD 1000000007
 #define uInt unsigned long long int
-#define Int long long int
+#define Int int
 
 using namespace std;
 
@@ -57,28 +60,33 @@ class SuffixArray
 	vector<Int> suffArray;
 	Int len;
 	static const char delim = '$';
-	static const char base = 'a';
+	static const char base = 'A';
 	SuffixArray(const string &s)
 	{
-		text = s + delim;
+		text = s;
 		len = text.length();
 		suffArray.resize(len, -1);
 		buildSuffArray();
 	}
 	static Int index(const char &c)
 	{
-		if (c == delim)
+		switch (c)
+		{
+		case delim:
 			return 0;
-		else
-			return c - base + 1;
-	}
-	static bool strSort(const char &c1, const char &c2)
-	{
-		return index(c1) < index(c2);
+		case 'A':
+			return 1;
+		case 'C':
+			return 2;
+		case 'G':
+			return 3;
+		case 'T':
+			return 4;
+		}
+		return -1;
 	}
 	void buildSuffArray()
 	{
-		// Time Complexity : O(NlogN^2)
 		vector<Suffix> v(len);
 		for (Int i = 0; i < len; i++)
 		{
@@ -125,20 +133,24 @@ class SuffixArray
 			suffArray[i] = v[i].indx;
 		}
 	}
-	// to get Burrows–Wheeler Transform of String
 	string getBWT()
 	{
 		char bwt[len + 1];
 		for (Int i = 0; i < len; i++)
 		{
 			Int ind = suffArray[i] - 1;
-			ind += len;
-			bwt[i] = text[ind % len];
+			if (ind >= 0)
+				bwt[i] = text[ind];
+			else
+				bwt[i] = text[len - 1];
 		}
 		bwt[len] = '\0';
 		return string(bwt);
 	}
-	// to decode Burrows–Wheeler Transform of string
+	static bool strSort(const char &c1, const char &c2)
+	{
+		return index(c1) < index(c2);
+	}
 	static string decodeBWT(const string &L)
 	{
 		Int n = L.length();
@@ -174,9 +186,9 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	string s = "agggaa$";
+	string s;
+	cin >> s;
 	logn(SuffixArray::decodeBWT(s));
-
 	return 0;
 }
 
