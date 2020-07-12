@@ -54,16 +54,25 @@ class SuffixArray
 		}
 	};
 	string text;
+	string bwt_last;
+	string bwt_first;
 	vector<Int> suffArray;
+	vector<Int> firstToLast, lastToFirst;
+	vector<Int> firstOccurance;
+	vector<vector<Int>> rankByRow;
 	Int len;
 	static const char delim = '$';
 	static const char base = 'a';
+	static const Int charSetSize = 27;
 	SuffixArray(const string &s)
 	{
 		text = s + delim;
 		len = text.length();
-		suffArray.resize(len, -1);
 		buildSuffArray();
+		codeBWT();
+		buildFTL();
+		buildLTF();
+		buildRBR();
 	}
 	static Int index(const char &c)
 	{
@@ -78,7 +87,8 @@ class SuffixArray
 	}
 	void buildSuffArray()
 	{
-		// Time Complexity : O(NlogN^2)
+		// Time Complexity : O(N(logN)^2)
+		suffArray.resize(len, -1);
 		vector<Suffix> v(len);
 		for (Int i = 0; i < len; i++)
 		{
@@ -125,18 +135,79 @@ class SuffixArray
 			suffArray[i] = v[i].indx;
 		}
 	}
-	// to get Burrows–Wheeler Transform of String
-	string getBWT()
+	void buildRBR()
 	{
-		char bwt[len + 1];
+		rankByRow.resize(len);
+		rankByRow[0] = vector<Int>(charSetSize, 0);
+		Int ind = index(bwt_last[0]);
+		rankByRow[0][ind]++;
+		for (Int i = 1; i < len; i++)
+		{
+			rankByRow[i] = rankByRow[i - 1];
+			ind = index(bwt_last[i]);
+			rankByRow[i][ind]++;
+		}
+	}
+	void buildFTL()
+	{
+		firstToLast.resize(len, -1);
+		unordered_map<char, queue<Int>> m;
+		for (Int i = 0; i < len; i++)
+		{
+			m[bwt_last[i]].push(i);
+		}
+		for (Int i = 0; i < len; i++)
+		{
+			queue<Int> &q = m[bwt_first[i]];
+			firstToLast[i] = q.front();
+			q.pop();
+		}
+	}
+	void buildLTF()
+	{
+		lastToFirst.resize(len, -1);
+		unordered_map<char, queue<Int>> m;
+		for (Int i = 0; i < len; i++)
+		{
+			m[bwt_first[i]].push(i);
+		}
+		for (Int i = 0; i < len; i++)
+		{
+			queue<Int> &q = m[bwt_last[i]];
+			lastToFirst[i] = q.front();
+			q.pop();
+		}
+	}
+	// to get Burrows–Wheeler Transform of String
+	void codeBWT()
+	{
+		char code[len + 1];
+		code[len] = '\0';
+
+		// for bwt_first
+		for (Int i = 0; i < len; i++)
+		{
+			Int ind = suffArray[i];
+			code[i] = text[ind];
+		}
+		bwt_first = string(code);
+
+		// calculate First Occurance in BWT 1st Column
+		firstOccurance.resize(charSetSize, -1);
+		for (Int i = 0; i < len; i++)
+		{
+			Int ind = index(bwt_first[i]);
+			if (firstOccurance[ind] == -1)
+				firstOccurance[ind] = i;
+		}
+
+		// for bwt_last
 		for (Int i = 0; i < len; i++)
 		{
 			Int ind = suffArray[i] - 1;
-			ind += len;
-			bwt[i] = text[ind % len];
+			code[i] = text[(ind + len) % len];
 		}
-		bwt[len] = '\0';
-		return string(bwt);
+		bwt_last = string(code);
 	}
 	// to decode Burrows–Wheeler Transform of string
 	static string decodeBWT(const string &L)
@@ -149,11 +220,11 @@ class SuffixArray
 		{
 			m[L[i]].push(i);
 		}
-		Int firstToLast[n];
+		Int ftl[n];
 		for (Int i = 0; i < n; i++)
 		{
 			queue<Int> &q = m[F[i]];
-			firstToLast[i] = q.front();
+			ftl[i] = q.front();
 			q.pop();
 		}
 		char decode[n + 1];
@@ -161,10 +232,36 @@ class SuffixArray
 		Int x = 0;
 		for (Int i = 0; i < n; i++)
 		{
-			x = firstToLast[x];
+			x = ftl[x];
 			decode[i] = F[x];
 		}
 		return string(decode);
+	}
+	vector<Int> getOccurances(const string &p)
+	{
+		Int i = p.length() - 1;
+		Int top = 0, bottom = len - 1;
+		vector<Int> occur;
+		while (top <= bottom and (top >= 0 and bottom >= 0))
+		{
+			if (i < 0)
+			{
+				occur.reserve(bottom - top + 1);
+				for (Int i = top; i <= bottom; i++)
+					occur.push_back(suffArray[i]);
+				break;
+			}
+			else
+			{
+				Int ind = index(p[i--]);
+				if (top - 1 >= 0)
+					top = firstOccurance[ind] + rankByRow[top - 1][ind];
+				else
+					top = firstOccurance[ind];
+				bottom = firstOccurance[ind] + rankByRow[bottom][ind] - 1;
+			}
+		}
+		return occur;
 	}
 };
 
@@ -173,8 +270,10 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	string s = "agggaa$";
-	logn(SuffixArray::decodeBWT(s));
+	string s = "panamabananas";
+	string p = "ana";
+	SuffixArray sa(s);
+	debVect(sa.getOccurances(p));
 
 	return 0;
 }
