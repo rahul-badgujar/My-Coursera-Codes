@@ -15,6 +15,8 @@
 
 using namespace std;
 
+typedef vector<Int> ListInt;
+
 template <typename T, typename U>
 void debArr(T arr[], U n)
 {
@@ -56,10 +58,10 @@ class SuffixArray
 	string text;
 	string bwt_last;
 	string bwt_first;
-	vector<Int> suffArray;
-	vector<Int> firstToLast, lastToFirst;
-	vector<Int> firstOccurance;
-	vector<vector<Int>> rankByRow;
+	ListInt suffArray;
+	ListInt firstToLast, lastToFirst;
+	ListInt firstOccurance;
+	vector<ListInt> rankByRow;
 	Int len;
 	static const char delim = '$';
 	static const char base = 'a';
@@ -87,11 +89,11 @@ class SuffixArray
 	{
 		return index(c1) < index(c2);
 	}
-	static vector<Int> buildSuffArray(const string &s)
+	static ListInt buildSuffArray(const string &s)
 	{
 		// Time Complexity : O(N(logN)^2)
 		Int n = s.length();
-		vector<Int> sa;
+		ListInt sa;
 		sa.resize(n, -1);
 		vector<Suffix> v(n);
 		for (Int i = 0; i < n; i++)
@@ -140,11 +142,11 @@ class SuffixArray
 		}
 		return sa;
 	}
-	vector<vector<Int>> buildRBR()
+	vector<ListInt> buildRBR()
 	{
-		vector<vector<Int>> rbr;
+		vector<ListInt> rbr;
 		rbr.resize(len);
-		rbr[0] = vector<Int>(charSetSize, 0);
+		rbr[0] = ListInt(charSetSize, 0);
 		Int ind = index(bwt_last[0]);
 		rbr[0][ind]++;
 		for (Int i = 1; i < len; i++)
@@ -155,9 +157,9 @@ class SuffixArray
 		}
 		return rbr;
 	}
-	vector<Int> buildFTL()
+	ListInt buildFTL()
 	{
-		vector<Int> ftl(len, -1);
+		ListInt ftl(len, -1);
 		unordered_map<char, queue<Int>> m;
 		for (Int i = 0; i < len; i++)
 		{
@@ -171,9 +173,9 @@ class SuffixArray
 		}
 		return ftl;
 	}
-	vector<Int> buildLTF()
+	ListInt buildLTF()
 	{
-		vector<Int> ltf(len, -1);
+		ListInt ltf(len, -1);
 		unordered_map<char, queue<Int>> m;
 		for (Int i = 0; i < len; i++)
 		{
@@ -187,10 +189,10 @@ class SuffixArray
 		}
 		return ltf;
 	}
-	vector<Int> buildFO()
+	ListInt buildFO()
 	{
 		// calculate First Occurance in BWT 1st Column
-		vector<Int> fo(charSetSize, -1);
+		ListInt fo(charSetSize, -1);
 		for (Int i = 0; i < len; i++)
 		{
 			Int ind = index(bwt_first[i]);
@@ -254,11 +256,11 @@ class SuffixArray
 		}
 		return string(decode);
 	}
-	vector<Int> getOccurances(const string &p)
+	ListInt getOccurances(const string &p)
 	{
 		Int i = p.length() - 1;
 		Int top = 0, bottom = len - 1;
-		vector<Int> occur;
+		ListInt occur;
 		while (top <= bottom and (top >= 0 and bottom >= 0))
 		{
 			if (i < 0)
@@ -288,9 +290,8 @@ int main()
 	cin.tie(NULL);
 
 	string s = "panamabananas";
-	string p = "ana";
 	SuffixArray sa(s);
-	debVect(sa.getOccurances(p));
+	debVect(sa.suffArray);
 
 	return 0;
 }
