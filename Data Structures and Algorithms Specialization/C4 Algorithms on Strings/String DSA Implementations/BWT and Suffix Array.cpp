@@ -70,7 +70,7 @@ class SuffixArray
 	{
 		text = s + delim;
 		len = text.length();
-		suffArray = buildSuffArray(text);
+		suffArray = buildSuffArray();
 		bwt_first = codeBWTfirst();
 		bwt_last = codeBWTlast();
 		firstOccurance = buildFO();
@@ -89,58 +89,80 @@ class SuffixArray
 	{
 		return index(c1) < index(c2);
 	}
-	static ListInt buildSuffArray(const string &s)
+	ListInt buildSuffArray()
 	{
-		// Time Complexity : O(N(logN)^2)
-		Int n = s.length();
-		ListInt sa;
-		sa.resize(n, -1);
-		vector<Suffix> v(n);
-		for (Int i = 0; i < n; i++)
+		// Time Complexity O(nLOGn) using Couting Sort
+		ListInt order = sortChars();
+		ListInt eqvClass = initEqvClass(order);
+		Int L = 1;
+		while (L < len)
 		{
-			v[i].indx = i;
-			v[i].rank1 = index(s[i]);
-			if (i + 1 < n)
-				v[i].rank2 = index(s[i + 1]);
+			order = sortDoubled(order, eqvClass, L);
+			eqvClass = updateEqvClass(order, eqvClass, L);
+			L *= 2;
+		}
+		return order;
+	}
+	ListInt sortChars()
+	{
+		ListInt order(len, 0), count(charSetSize, 0);
+		for (Int i = 0; i < len; i++)
+			count[index(text[i])]++;
+		for (Int i = 1; i < charSetSize; i++)
+			count[i] += count[i - 1];
+		for (Int i = len - 1; i >= 0; i--)
+		{
+			Int indx = index(text[i]);
+			count[indx]--;
+			order[count[indx]] = i;
+		}
+		return order;
+	}
+	ListInt initEqvClass(const ListInt &order)
+	{
+		ListInt eqvClass(len, 0);
+		eqvClass[order[0]] = 0;
+		for (Int i = 1; i < len; i++)
+		{
+			Int curr = order[i];
+			Int prev = order[i - 1];
+			if (text[curr] == text[prev])
+				eqvClass[curr] = eqvClass[prev];
 			else
-				v[i].rank2 = -1;
+				eqvClass[curr] = eqvClass[prev] + 1;
 		}
-		sort(v.begin(), v.end(), Suffix::compare);
-		Int corrIndx[n];
-		for (Int k = 4; k < 2 * (n); k *= 2)
+		return eqvClass;
+	}
+	ListInt sortDoubled(const ListInt &order, const ListInt &eClass, const Int &L)
+	{
+		ListInt newOrder(len, 0), count(len, 0);
+		for (Int i = 0; i < len; i++)
+			count[eClass[i]]++;
+		for (Int i = 1; i < len; i++)
+			count[i] += count[i - 1];
+		for (Int i = len - 1; i >= 0; i--)
 		{
-			Int rank = 0;
-			Int prevR1 = v[0].rank1;
-			v[0].rank1 = rank;
-			corrIndx[v[0].indx] = 0;
-			for (Int i = 1; i < n; i++)
-			{
-				if (v[i].rank1 == prevR1 and v[i].rank2 == v[i - 1].rank2)
-				{
-					v[i].rank1 = rank;
-				}
-				else
-				{
-					prevR1 = v[i].rank1;
-					v[i].rank1 = ++rank;
-				}
-				corrIndx[v[i].indx] = i;
-			}
-			for (Int i = 0; i < n; i++)
-			{
-				Int nextIndx = v[i].indx + k / 2;
-				if (nextIndx < n)
-					v[i].rank2 = v[corrIndx[nextIndx]].rank1;
-				else
-					v[i].rank2 = -1;
-			}
-			sort(v.begin(), v.end(), Suffix::compare);
+			Int start = (order[i] - L + len) % len;
+			Int cl = eClass[start];
+			count[cl]--;
+			newOrder[count[cl]] = start;
 		}
-		for (Int i = 0; i < n; i++)
+		return newOrder;
+	}
+	ListInt updateEqvClass(const ListInt &newOrder, const ListInt &eClass, const Int &L)
+	{
+		ListInt updClass(len, 0);
+		updClass[newOrder[0]] = 0;
+		for (Int i = 1; i < len; i++)
 		{
-			sa[i] = v[i].indx;
+			Int curr = newOrder[i], prev = newOrder[i - 1];
+			Int midCurr = (curr + L) % len, midPrev = (prev + L) % len;
+			if (eClass[curr] == eClass[prev] and eClass[midCurr] == eClass[midPrev])
+				updClass[curr] = updClass[prev];
+			else
+				updClass[curr] = updClass[prev] + 1;
 		}
-		return sa;
+		return updClass;
 	}
 	vector<ListInt> buildRBR()
 	{
