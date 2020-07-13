@@ -5,13 +5,14 @@
 #include <algorithm>
 #include <unordered_map>
 #include <queue>
+#include <unordered_set>
 #define deb(x) cout << #x << " : " << x << '\n'
 #define logn(x) cout << x << '\n'
 #define logs(x) cout << x << ' '
 #define log(x) cout << x
 #define MOD 1000000007
 #define uInt unsigned long long int
-#define Int long long int
+#define Int int
 
 using namespace std;
 
@@ -65,7 +66,7 @@ class SuffixArray
 	Int len;
 	static const char delim = '$';
 	static const char base = 'a';
-	static const Int charSetSize = 27;
+	static const Int charSetSize = 5;
 	SuffixArray(const string &s)
 	{
 		text = s + delim;
@@ -80,10 +81,20 @@ class SuffixArray
 	}
 	static Int index(const char &c)
 	{
-		if (c == delim)
+		switch (c)
+		{
+		case delim:
 			return 0;
-		else
-			return c - base + 1;
+		case 'A':
+			return 1;
+		case 'C':
+			return 2;
+		case 'G':
+			return 3;
+		case 'T':
+			return 4;
+		}
+		return -1;
 	}
 	static bool strSort(const char &c1, const char &c2)
 	{
@@ -278,18 +289,16 @@ class SuffixArray
 		}
 		return string(decode);
 	}
-	ListInt getOccurances(const string &p)
+	void getOccurances(const string &p, unordered_set<Int> &us)
 	{
 		Int i = p.length() - 1;
 		Int top = 0, bottom = len - 1;
-		ListInt occur;
 		while (top <= bottom and (top >= 0 and bottom >= 0))
 		{
 			if (i < 0)
 			{
-				occur.reserve(bottom - top + 1);
 				for (Int i = top; i <= bottom; i++)
-					occur.push_back(suffArray[i]);
+					us.insert(suffArray[i]);
 				break;
 			}
 			else
@@ -302,7 +311,6 @@ class SuffixArray
 				bottom = firstOccurance[ind] + rankByRow[bottom][ind] - 1;
 			}
 		}
-		return occur;
 	}
 };
 
@@ -311,10 +319,19 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	string s = "panamabananas";
+	string s;
+	cin >> s;
 	SuffixArray sa(s);
-	string p="ana";
-	debVect(sa.getOccurances(p));
-
+	Int n;
+	cin >> n;
+	unordered_set<Int> us;
+	while (n--)
+	{
+		string p;
+		cin >> p;
+		sa.getOccurances(p, us);
+	}
+	for (auto i : us)
+		logs(i);
 	return 0;
 }
