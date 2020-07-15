@@ -149,6 +149,31 @@ class SuffixArray
 		}
 		return updClass;
 	}
+	ListInt getLCPA()
+	{
+		// Kasai Algorithm 
+		// Time Complexity O(n)
+		ListInt lcp(len - 1, 0);
+		ListInt invSA(len, 0);
+		// Invert Suffix Array
+		for (Int i = 0; i < len; i++)
+			invSA[suffArray[i]] = i;
+		Int k = 0;
+		for (Int i = 0; i < len; i++)
+		{
+			if (invSA[i] == len - 1)
+			{
+				k = 0;
+				continue;
+			}
+			Int j = suffArray[invSA[i] + 1];
+			while ((i + k < len and j + k < len) and (text[i + k] == text[j + k]))
+				k++;
+			lcp[invSA[i]] = k;
+			k = k > 0 ? --k : 0;
+		}
+		return lcp;
+	}
 	vector<ListInt> buildRBR()
 	{
 		vector<ListInt> rbr;
@@ -296,10 +321,9 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	string s = "panamabananas";
+	string s = "ababaa";
 	SuffixArray sa(s);
-	string p="ana";
-	debVect(sa.getOccurances(p));
+	debVect(sa.getLCPA());
 
 	return 0;
 }
