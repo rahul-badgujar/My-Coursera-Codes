@@ -95,6 +95,32 @@ class SegTree
 	{
 		update(0, 0, n - 1, ind, upd);
 	}
+	void updateRange(const Int &node, const Int &start, const Int &end, const Int &left, const Int &right, const Int &upd)
+	{
+		if (start <= end)
+		{
+			if (left > end or right < start)
+				return;
+			if (start == end)
+			{
+				tree[node] += upd;
+				arr[start] += upd;
+			}
+			else
+			{
+				Int mid = (start + end) / 2;
+				Int lChild = 2 * node + 1;
+				Int rChild = 2 * node + 2;
+				updateRange(lChild, start, mid, left, right, upd);
+				updateRange(rChild, mid + 1, end, left, right, upd);
+				tree[node] = tree[lChild] + tree[rChild];
+			}
+		}
+	}
+	void updateRange(const Int &left, const Int &right, const Int &upd)
+	{
+		updateRange(0, 0, n - 1, left, right, upd);
+	}
 	Int query(const Int &node, const Int &start, const Int &end, const Int &left, const Int &right)
 	{
 		if (start <= end)
@@ -129,9 +155,11 @@ int main()
 	debVect(st.arr);
 	debVect(st.tree);
 
-	st.update(3, 4);
+	st.updateRange(1, 2, 4);
 	debVect(st.arr);
 	debVect(st.tree);
+
+	deb(st.query(3, 5));
 
 	return 0;
 }
