@@ -37,13 +37,14 @@ class SegTree
 {
   public:
 	vector<Int> arr;
-	vector<Int> tree;
+	vector<Int> tree, lazy;
 	Int n;
 	SegTree(const vector<Int> &v)
 	{
 		n = v.size();
 		arr = v;
 		tree.resize(4 * n, 0);
+		lazy.resize(4 * n, 0);
 		build();
 	}
 	void build(const Int &node, const Int &start, const Int &end)
@@ -141,6 +142,74 @@ class SegTree
 	{
 		return query(0, 0, n - 1, left, right);
 	}
+	void lazyUpdateRange(const Int &node, const Int &start, const Int &end, const Int &left, const Int &right, const Int &upd)
+	{
+		if (start <= end)
+		{
+			Int lChild = 2 * node + 1;
+			Int rChild = 2 * node + 2;
+			if (lazy[node] != 0)
+			{
+				tree[node] += (end - start + 1) * lazy[node];
+				if (start != end)
+				{
+					lazy[lChild] += lazy[node];
+					lazy[rChild] += lazy[node];
+				}
+				lazy[node] = 0;
+			}
+			if (right < start or left > end)
+				return;
+			if (left <= start and end <= right)
+			{
+				tree[node] += (end - start + 1) * upd;
+				if (start != end)
+				{
+					lazy[lChild] += upd;
+					lazy[rChild] += upd;
+				}
+				return;
+			}
+			Int mid = (start + end) / 2;
+			lazyUpdateRange(lChild, start, mid, left, right, upd);
+			lazyUpdateRange(rChild, mid + 1, end, left, right, upd);
+			tree[node] = tree[lChild] + tree[rChild];
+		}
+	}
+	void lazyUpdateRange(const Int &left, const Int &right, const Int &upd)
+	{
+		lazyUpdateRange(0, 0, n - 1, left, right, upd);
+	}
+	Int lazyQuery(const Int &node, const Int &start, const Int &end, const Int &left, const Int &right)
+	{
+		if (start <= end)
+		{
+			Int lChild = 2 * node + 1;
+			Int rChild = 2 * node + 2;
+			if (lazy[node] != 0)
+			{
+				tree[node] += (end - start + 1) * lazy[node];
+				if (start != end)
+				{
+					lazy[lChild] += lazy[node];
+					lazy[rChild] += lazy[node];
+				}
+				lazy[node] = 0;
+			}
+			if (right < start or left > end)
+				return 0;
+			if (left <= start and end <= right)
+				return tree[node];
+			Int mid = (start + end) / 2;
+			Int v1 = lazyQuery(lChild, start, mid, left, right);
+			Int v2 = lazyQuery(rChild, mid + 1, end, left, right);
+			return v1 + v2;
+		}
+	}
+	Int lazyQuery(const Int &left, const Int &right)
+	{
+		return lazyQuery(0, 0, n - 1, left, right);
+	}
 };
 
 int main()
@@ -148,18 +217,20 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	vector<Int> v({1, 3, 5, 7, 9, 11});
+	vector<Int> v({1, 3, 5, 7, 9, 10});
 	Int n = v.size();
 
 	SegTree st(v);
 	debVect(st.arr);
 	debVect(st.tree);
+	deb(st.query(0, 2));
 
-	st.updateRange(1, 2, 4);
+	st.lazyUpdateRange(0, 1, 4);
 	debVect(st.arr);
+	debVect(st.lazy);
 	debVect(st.tree);
 
-	deb(st.query(3, 5));
+	deb(st.lazyQuery(0, 2));
 
 	return 0;
 }
