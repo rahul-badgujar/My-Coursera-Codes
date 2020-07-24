@@ -59,7 +59,7 @@ class BIT
 			i += (i & -i);
 		}
 	}
-	Int query(Int i)
+	Int query(Int i) const
 	{
 		i++; // 1 Based Indexing
 		Int result = 0;
@@ -70,7 +70,7 @@ class BIT
 		}
 		return result;
 	}
-	Int query(const Int &i, const Int &j)
+	Int query(const Int &i, const Int &j) const
 	{
 		return (query(j) - query(i - 1));
 	}
@@ -84,13 +84,10 @@ int main()
 	vector<Int> v({1, 3, 5, 7, 9, 10});
 	BIT b(v);
 	debVect(v);
-	Int q = 10;
-	while (q--)
-	{
-		Int i, j;
-		cin >> i >> j;
-		logn(b.query(i, j));
-	}
-
+	debVect(b.arr);
+	deb(b.query(0, 2));
+	b.update(1, 4);
+	debVect(b.arr);
+	deb(b.query(0, 2));
 	return 0;
 }
