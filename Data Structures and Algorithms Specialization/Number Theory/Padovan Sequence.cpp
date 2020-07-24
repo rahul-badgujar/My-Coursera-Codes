@@ -32,23 +32,24 @@ void debVect(vector<T> arr)
 	log(endl);
 }
 
-Int gcd(const Int &a, const Int &b, Int &x, Int &y)
+Int padovan(const Int &n)
 {
 	/*
-	Extended Euclidean
-	gcd(a,b) = ax + by
+	Padovan Sequence
+	P(n) = P(n-2) + P(n-3);
+	and P(0)=P(1)=P(2)=1;
+	
+	Use in Sprial of Equilateral Triangles
 	*/
-	if (b == 0)
+	Int seq[3] = {1, 1, 1};
+	for (Int i = 3; i <= n; i++)
 	{
-		x = 1;
-		y = 0;
-		return a;
+		Int t = seq[1] + seq[0];
+		seq[0] = seq[1];
+		seq[1] = seq[2];
+		seq[2] = t;
 	}
-	Int x1, y1;
-	Int g = gcd(b, a%b, x1, y1);
-	x = y1;
-	y = x1 - (a / b) * y1;
-	return g;
+	return seq[2];
 }
 
 int main()
@@ -56,11 +57,10 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	Int a = 35, b = 15, x, y;
-	Int hcf = gcd(a, b, x, y);
-	deb(hcf);
-	deb(x);
-	deb(y);
+	for (Int i = 0; i < 10; i++)
+	{
+		logs(padovan(i));
+	}
 
 	return 0;
 }

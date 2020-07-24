@@ -45,10 +45,28 @@ Int gcd(const Int &a, const Int &b, Int &x, Int &y)
 		return a;
 	}
 	Int x1, y1;
-	Int g = gcd(b, a%b, x1, y1);
+	Int g = gcd(b, a % b, x1, y1);
 	x = y1;
 	y = x1 - (a / b) * y1;
 	return g;
+}
+
+Int modInverse(const Int &a, const Int &b)
+{
+	/*
+	Multiplicative Module Inverse of A under M is B such that
+	(A*B)%M=1 === A*B=1(%M)
+	
+	Method used:
+	Extended Euclidean Coefficient
+	gcd(A,B)=A*x+B*y
+	Here
+	x=MMI of A under B
+	y=MMI of B under A
+	*/
+	Int x, y;
+	gcd(a, b, x, y);
+	return x;
 }
 
 int main()
@@ -56,11 +74,7 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	Int a = 35, b = 15, x, y;
-	Int hcf = gcd(a, b, x, y);
-	deb(hcf);
-	deb(x);
-	deb(y);
+	deb(modInverse(16, 10));
 
 	return 0;
 }

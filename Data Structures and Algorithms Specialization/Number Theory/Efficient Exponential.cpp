@@ -32,23 +32,19 @@ void debVect(vector<T> arr)
 	log(endl);
 }
 
-Int gcd(const Int &a, const Int &b, Int &x, Int &y)
+Int exp(Int x, Int n)
 {
-	/*
-	Extended Euclidean
-	gcd(a,b) = ax + by
-	*/
-	if (b == 0)
+	Int result = 1;
+	while (n > 0)
 	{
-		x = 1;
-		y = 0;
-		return a;
+		if ((n & 1) == 1)
+		{
+			result = result * x;
+		}
+		x = x * x;
+		n >>= 1;
 	}
-	Int x1, y1;
-	Int g = gcd(b, a%b, x1, y1);
-	x = y1;
-	y = x1 - (a / b) * y1;
-	return g;
+	return result;
 }
 
 int main()
@@ -56,11 +52,7 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	Int a = 35, b = 15, x, y;
-	Int hcf = gcd(a, b, x, y);
-	deb(hcf);
-	deb(x);
-	deb(y);
+	deb(exp(6, 3));
 
 	return 0;
 }
