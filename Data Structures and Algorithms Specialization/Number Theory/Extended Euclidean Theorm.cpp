@@ -56,7 +56,7 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	Int a = 35, b = 15, x, y;
+	Int a = 3, b = 4, x, y;
 	Int hcf = gcd(a, b, x, y);
 	deb(hcf);
 	deb(x);
