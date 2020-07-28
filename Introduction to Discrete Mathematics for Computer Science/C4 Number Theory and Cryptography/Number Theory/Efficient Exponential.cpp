@@ -35,7 +35,7 @@ void debVect(vector<T> arr)
 Int exp(Int x, Int n)
 {
 	Int result = 1;
-	while (n > 0)
+	while (n >= 1)
 	{
 		if ((n & 1) == 1)
 		{
@@ -47,12 +47,38 @@ Int exp(Int x, Int n)
 	return result;
 }
 
+Int exp(Int x, Int n, const Int m)
+{
+	Int result = 1;
+	x = x % m;
+	if (x > 0 and abs(x - m) < abs(x))
+	{
+		x = x - m;
+	}
+	else if (x < 0 and abs(x + m) < abs(x))
+	{
+		x = x + m;
+	}
+	n = n % (m - 1); // using Fermants Little Theorm
+	while (n >= 1)
+	{
+		if ((n & 1) == 1)
+		{
+			result = (result * x) % m;
+		}
+		x = (x * x) % m;
+		n >>= 1;
+	}
+	return (result + m) % m;
+}
+
 int main()
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
 	deb(exp(6, 3));
+	deb(exp(6, 3, 10));
 
 	return 0;
 }
