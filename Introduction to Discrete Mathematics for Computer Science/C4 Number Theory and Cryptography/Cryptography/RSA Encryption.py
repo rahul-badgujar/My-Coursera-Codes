@@ -49,17 +49,6 @@ def modExp(x:int,y:int,m:int):
 		x=(x*x)%m
 		y>>=1
 	return (ans+m)%m
-	
-def modExpPrime(x:int,y:int,m:int):
-	x%=m
-	y%=(m-1)
-	ans=1
-	while y>=1:
-		if (y&1)==1:
-			ans=(ans*x)%m
-		x=(x*x)%m
-		y>>=1
-	return (ans+m)%m
 
 def nBitRandInt(n:int):
 	# Generate High N Bit Random Number
@@ -139,7 +128,7 @@ if __name__=='__main__':
 	print("Message Hex : ",msg_hex)
 	enc_msg=int(msg_hex,16)
 	# Encrypt Message Code as C = M**E mod N
-	enc_msg=modExpPrime(enc_msg,e,n)
+	enc_msg=modExp(enc_msg,e,n)
 	print("Encrypted Message Code : ",enc_msg,'\n')
 	
 	
@@ -154,7 +143,7 @@ if __name__=='__main__':
 	
 	
 	# Decrypt Message Code as M = C**D mod N
-	dec_msg=modExpPrime(enc_msg,d,n)
+	dec_msg=modExp(enc_msg,d,n)
 	print("Decrypted Message Code : ",dec_msg)
 	dec_msg_hex=hex(dec_msg)
 	dec_msg_hex=dec_msg_hex[2:]
