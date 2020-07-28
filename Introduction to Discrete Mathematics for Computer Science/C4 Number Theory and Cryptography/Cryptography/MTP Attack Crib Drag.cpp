@@ -6,6 +6,7 @@
 #include <bitset>
 #include <cstdint>
 #include <unordered_map>
+#include <cctype>
 #define deb(x) cout << #x << " : " << x << '\n'
 #define logn(x) cout << x << '\n'
 #define logs(x) cout << x << ' '
@@ -34,6 +35,16 @@ void debVect(vector<T> arr)
 		logs(i);
 	}
 	log(endl);
+}
+
+string inpStr()
+{
+	string s(" ");
+	while (s == " ")
+	{
+		getline(cin, s);
+	}
+	return s;
 }
 
 char intToHex(uint8_t n)
@@ -100,49 +111,83 @@ string strXOR(const string &s1, const string &s2)
 	return x;
 }
 
+bool isGoodGuess(const string &guess)
+{
+	for (auto i : guess)
+	{
+		if (!(('a' <= i and i <= 'z') or ('A' <= i and i <= 'Z') or i == ' '))
+			return false;
+	}
+	return true;
+}
+
+void tryGuessingWord(const string &ciphers_xor, const string &word)
+{
+	string word_hex = decToHex(word);
+	Int cLen = ciphers_xor.length();
+	Int wLen = word_hex.length();
+	logs("Good Guesses for :");
+	logn("\'" + word + "\'");
+	for (size_t i = 0; i <= cLen - wLen; i++)
+	{
+		string part = ciphers_xor.substr(i, wLen);
+		string guess = hexToDec(strXOR(word_hex, part));
+		if (isGoodGuess(guess))
+		{
+			logs("at " + to_string(i) + " -> ");
+			string guess_log = "\'" + guess + "\'";
+			logn("FOUND : " + guess_log);
+		}
+	}
+}
+
 int main()
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
 	/*
-	One Time Pad
-	is a secure encryption technique using Hex Codes and XOR Encryption
-	both parties share a common key
-	message is encrypted/decrypted using that key
-	if the same key is not used for multiple messages,
-	this method provides EveDropping,
-	bt if used for more than one message, 
-	Eve can partially decode messages without help of key
-	using trying ans guessing method (called as Crib Drag Method)
-	
-	Many Time Pad Attack : Crib Dragging
-	can be used to Decipher OTP if known that OTP Encryption is used
-	To know about Crib Drag Technique : http://travisdazell.blogspot.com/2012/11/many-time-pad-attack-crib-drag.html?m=1
+	Eve Dropping
+	Eve captures your messages
 	*/
-
-	string key = "supersecret";
-	deb(key);
+	logn("Eve got : \n");
+	string key = "supersecretverys";
 	string key_hex = decToHex(key);
-	deb(key_hex);
-	log('\n');
+	string msg1 = "steal the secret";
+	string msg2 = "the boy the girl";
+	string msg1_hex = decToHex(msg1);
+	string msg2_hex = decToHex(msg2);
+	string msg1_enc_hex = strXOR(msg1_hex, key_hex);
+	string msg2_enc_hex = strXOR(msg2_hex, key_hex);
+	deb(msg1_enc_hex);
+	deb(msg2_enc_hex);
+	log(endl);
 
-	logn("Party 1 : \n");
-	string msg = "Hello World!";
-	deb(msg);
-	string msg_hex = decToHex(msg);
-	deb(msg_hex);
-	string msg_enc_hex = strXOR(msg_hex, key_hex);
-	deb(msg_enc_hex);
-	log('\n');
+	/*
+	Eve trying to Decode
+	1. XOR the Encrypted Ciphers
+	2. Try guessing most used Common English Words
+	3. Look for the Good Guesses
+	4. Continue
+	*/
+	logn("Eve trying to Decode using Crib Dragging : \n");
+	string msgs_xor = strXOR(msg1_enc_hex, msg2_enc_hex);
+	deb(msgs_xor);
+	log(endl);
 
-	logn("Party 2 : \n");
-	deb(msg_enc_hex);
-	string msg_dec_hex = strXOR(msg_enc_hex, key_hex);
-	deb(msg_dec_hex);
-	string msg_dec = hexToDec(msg_dec_hex);
-	deb(msg_dec);
-	log('\n');
+	while (true)
+	{
+		log("Enter Your Guess Word : ");
+		string word;
+		word = inpStr();
+		tryGuessingWord(msgs_xor, word);
+		string choice;
+		log("Want to Continue Guessing (yes/no) : ");
+		choice = inpStr();
+		if (choice != "yes")
+			break;
+		log(endl);
+	}
 
 	return 0;
 }
