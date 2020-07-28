@@ -74,7 +74,7 @@ bool isPrime(const Int &n)
 	while (k--)
 	{
 		Int a = rand() % (n - 3) + 2; // Range [2,n-2]
-		if (gcd(n, a) != 1)
+		if (n%a==0)
 			return false;
 		if (modExp(a, n - 1, n) != 1)
 			return false;

@@ -47,7 +47,7 @@ Int exp(Int x, Int n)
 	return result;
 }
 
-Int exp(Int x, Int n, const Int m)
+Int modExp(Int x, Int n, const Int m)
 {
 	Int result = 1;
 	x = x % m;
@@ -59,6 +59,31 @@ Int exp(Int x, Int n, const Int m)
 	{
 		x = x + m;
 	}
+	while (n >= 1)
+	{
+		if ((n & 1) == 1)
+		{
+			result = (result * x) % m;
+		}
+		x = (x * x) % m;
+		n >>= 1;
+	}
+	return (result + m) % m;
+}
+
+Int modExpPrime(Int x, Int n, const Int m)
+{
+	Int result = 1;
+	x = x % m;
+	if (x > 0 and abs(x - m) < abs(x))
+	{
+		x = x - m;
+	}
+	else if (x < 0 and abs(x + m) < abs(x))
+	{
+		x = x + m;
+	}
+	// only if m is prime
 	n = n % (m - 1); // using Fermants Little Theorm
 	while (n >= 1)
 	{
@@ -78,7 +103,7 @@ int main()
 	cin.tie(NULL);
 
 	deb(exp(6, 3));
-	deb(exp(6, 3, 10));
+	deb(modExp(6, 3, 10));
 
 	return 0;
 }
