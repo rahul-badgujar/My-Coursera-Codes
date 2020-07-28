@@ -67,7 +67,7 @@ def isPrime(n:int):
 	return True
 	
 def getRandPrimes():
-	n=nBitRandInt(64) # Random Integer
+	n=nBitRandInt(128) # Random Integer
 	diff=rand.randrange(10**6,10**10)
 	p=n-diff # Keep difference above 1Mn in to Primes
 	q=n+diff
