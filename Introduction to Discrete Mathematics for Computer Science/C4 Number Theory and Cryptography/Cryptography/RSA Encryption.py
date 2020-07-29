@@ -1,4 +1,3 @@
-import random as rand
 
 '''
 RSA Encryption : A frequently used Encryption Technique
@@ -31,6 +30,8 @@ Security Advices
 3. Dont use redundant messages, as Hacker can try them one by one
    and can crack Private Key
 '''
+
+import random as rand
 
 def extGcd(a:int,b:int):
 	if b==0:
